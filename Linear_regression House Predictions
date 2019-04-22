@@ -1,0 +1,36 @@
+#import necessary libraries
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+%matplotlib inline
+
+#To read dataset csv file
+house_data=pd.read_csv("CSV File path")
+
+#To check whether null values present
+house_data.info()
+# To preview the given dataset
+house_data.head()
+
+# Define X array that contains features to train and y array that contains target variable
+X=house_data.drop(['Price','Address'],axis=1)
+y=house_data['Price']
+# Split dataset into train and test dataset
+from sklearn.model_selection import train_test_split
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33, random_state=42)
+
+#Create and train linear regression model
+from sklearn.linear_model import LinearRegression
+Lin_model=LinearRegression()
+Lin_model.fit(X_train,y_train)
+coeff_df=pd.DataFrame(Lin_model.coef_,X.columns,columns=['Coeffienct'])
+coeff_df
+predictions=Lin_model.predict(X_test)
+
+#Visualising the test set Vs predictions result
+plt.scatter(y_test,predictions)
+plt.xlabel("y_test")
+plt.ylabel("predictions")
+plt.title("Test set values Vs prediction")
+plt.show()
