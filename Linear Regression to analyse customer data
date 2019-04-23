@@ -28,6 +28,8 @@ Coeffecients
 prediction=lin.predict(X_test)
 
 sns.scatterplot(y_test,prediction)
+plt.xlabel('Y Test')
+plt.ylabel('Predicted Y')
 
 from sklearn import metrics
 print('MAE: ',metrics.mean_absolute_error(y_test,prediction))
