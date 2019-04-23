@@ -1,0 +1,35 @@
+#import necessary libraries
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+%matplotlib inline
+
+#Read given dataset in csv form
+customers=pd.read_csv('file path')
+#check given dataset head
+customers.head()
+
+#split dataset into training set and test set
+y=customers['Yearly Amount Spent']
+X=customers[['Avg. Session Length','Time on App','Time on Website','Length of Membership']]
+
+from sklearn.model_selection import train_test_split
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=101)
+
+from sklearn.linear_model import LinearRegression
+lin=LinearRegression()
+lin.fit(X_train,y_train)
+Coeffecients=pd.DataFrame(lin.coef_,X.columns)
+Coeffecients.columns=['Coeffecients']
+Coeffecients
+
+#get the predictions from trained model
+prediction=lin.predict(X_test)
+
+sns.scatterplot(y_test,prediction)
+
+from sklearn import metrics
+print('MAE: ',metrics.mean_absolute_error(y_test,prediction))
+print('MSE: ',metrics.mean_squared_error(y_test,prediction))
+print('RMSE: ',np.sqrt(metrics.mean_absolute_error(y_test,prediction)))
