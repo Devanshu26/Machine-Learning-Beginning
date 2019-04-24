@@ -1,0 +1,62 @@
+#Import necessary libraries
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+%matplotlib inline
+
+#read Titanic dataset(this is a cleaned dataset) from csv
+titanic_data=pd.read_csv('titanic_train.csv')
+#checking head of dataset
+titanic_data.head()
+#checking info of training dataset for null values
+titanic_data.info()
+print("we saw that there are some null values in the given dataset. We will draw a heatmap to show the null values with different color")
+sns.heatmap(titanic_data.isnull(),yticklabels=False,cmap='viridis')
+print("This shows we have few null values in Age and many null values in Cabin column. We will do some data imputation to fill in the age null values. Let's fill the age column by the average age of each passenger class and let's drop the cabin column as it is not very significant in predictive analysis")
+plt.figure(figsize=(12,12))
+sns.boxplot(x='Pclass',y='Age',data=titanic_data)
+print("From this boxplot, we can conclude average age for each class. For \nclass1=38\nclass2=28\nclass3=24")
+
+#Funtion for filling missing Age values with respective average values as per PClass
+def Fill_Age(cols):
+    Pclass=cols[0]
+    Age=cols[1]
+    
+    if pd.isnull(Age):
+        if Pclass==1:
+            return 38
+        elif Pclass==2:
+            return 28
+        elif Pclass==3:
+            return 24
+    else:
+        return Age
+
+titanic_data['Age']=titanic_data[['Pclass','Age']].apply(Fill_Age,axis=1)
+#Let's draw a heatmap again to verify that all null values has been filled
+sns.heatmap(titanic_data.isnull(),yticklabels=False,cmap='viridis')
+#Now let's drop column Cabin
+titanic_data.drop(columns='Cabin',axis=1,inplace=True)
+# Let's convert categorical features into dummy variable so that our ML algo works fine with these input features. We have 3 categorical variables i.e Sex, Pclass,Embarked
+sex=pd.get_dummies(titanic_data['Sex'],drop_first=True)
+embarked=pd.get_dummies(titanic_data['Embarked'],drop_first=False)
+p_class=pd.get_dummies(titanic_data['Pclass'],drop_first=False)
+
+#drop redundant features
+titanic_data.drop(columns=['Sex','Embarked','Pclass','Name','Ticket','Fare'],axis=1,inplace=True)
+titanic_data=pd.concat([titanic_data,sex,embarked,p_class],axis=1)
+titanic_data.head()
+#Divide features into X and y array
+X=titanic_data.drop(columns=['PassengerId','Survived',])
+y=titanic_data['Survived']
+from sklearn.model_selection import train_test_split
+X_train, X_test, y_train, y_test = train_test_split(X,y, test_size=0.33,random_state=101)
+#Build a logistic regression model for titanic dataset
+from sklearn.linear_model import LogisticRegression
+Log_Regression_model=LogisticRegression()
+Log_Regression_model.fit(X_train,y_train)
+predictions=Log_Regression_model.predict(X_test)
+from sklearn.metrics import classification_report,confusion_matrix
+print("Confusion matrix for the dataset is \n", confusion_matrix(y_test,predictions))
+print("Classification Report for the dataset is \n", classification_report(y_test,predictions))
