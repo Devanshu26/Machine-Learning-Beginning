@@ -6,7 +6,7 @@ import seaborn as sns
 %matplotlib inline
 
 #read Titanic dataset(this is a cleaned dataset) from csv
-titanic_data=pd.read_csv('titanic_train.csv')
+titanic_data=pd.read_csv('file path')
 #checking head of dataset
 titanic_data.head()
 #checking info of training dataset for null values
