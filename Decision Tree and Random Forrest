@@ -1,0 +1,41 @@
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+%matplotlib inline
+
+loans=pd.read_csv('loan_data.csv')
+loans.info()
+loans.head()
+loans.describe()
+
+#Here in this dataset we have a categorical data column. For this we will be creating dummy variable
+
+cat_feats=['purpose']
+final_data=pd.get_dummies(loans,columns=cat_feats,drop_first=True)
+final_data.info()
+
+#Divide into training set and test set
+from sklearn.cross_validation import train_test_split
+X=final_data.drop('not.fully.paid',axis=1)
+y=final_data['not.fully.paid']
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=101)
+
+#Building a decision tree model
+from sklearn.tree import DecisionTreeClassifier
+dtree=DecisionTreeClassifier()
+dtree.fit(X_train,y_train)
+predictions=dtree.predict(X_test)
+
+#Confusion matrix and classification report for Evaluation
+from sklearn.metrics import classification_report,confusion_matrix
+print(confusion_matrix(y_test,predictions))
+print(classification_report(y_test,predictions))
+
+# Now building a Random forrest model for the same to achieve higher accuracy.
+from sklearn.ensemble import RandomForestClassifier
+rtree=RandomForestClassifier()
+rtree.fit(X_train,y_train)
+predictions=rtree.predict(X_test)
+print(classification_report(y_test,predictions))
+print(confusion_matrix(y_test,predictions))
