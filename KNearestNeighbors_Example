@@ -1,0 +1,55 @@
+#import necessary libraries
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+import numpy as np
+%matplotlib inline
+
+#List the content of current directory
+import os
+os.listdir()
+classified_data=pd.read_csv('file path here',index_col=0)
+classified_data.head()
+X=classified_data.drop('TARGET CLASS',axis=1)
+y=classified_data['TARGET CLASS']
+
+#Since KNN has a pre-requisite of normalised scaled features. So we will do this using Standard Scaler function from Preprocessing library
+
+from sklearn.preprocessing import StandardScaler
+Scaler_data=StandardScaler()
+Scaler_data.fit(X)
+Final_Scaled_data=Scaler_data.transform(X)
+Final_Scaled_data=pd.DataFrame(Final_Scaled_data,columns=X.columns)
+Final_Scaled_data.head()
+
+#divide given dataset in training and test dataset
+from sklearn.cross_validation import train_test_split
+X_train, X_test, y_train, y_test = train_test_split(Final_Scaled_data, y, test_size=0.33, random_state=42)
+
+#KNN classifier model building
+from sklearn.neighbors import KNeighborsClassifier
+Knn=KNeighborsClassifier(n_neighbors=5)
+Knn.fit(X_train,y_train)
+
+# checking the score of the trained model on training dataset and test dataset
+Knn.score(X_train,y_train)
+Knn.score(X_test,y_test)
+
+# Now in KNN classifier we can achieve better accuracy by changing values of n_neighbor parameter. For this we are going to check model error by
+# substituting different n_neighbor value in model and will plot a graph of error.
+
+error_rate=[]
+for i in np.arange(1,40):
+    Knn_new=KNeighborsClassifier(n_neighbors=i)
+    Knn_new.fit(X_train,y_train)
+    predictions=Knn_new.predict(X_test)
+    error_rate.append(np.mean(predictions != y_test))
+ 
+ plt.figure(figsize=(12,12))
+plt.title("Error rate vs K value")
+plt.plot(range(1,40),error_rate,color='blue', linestyle='dashed',marker='o', markerfacecolor='red')
+plt.xlabel("K value")
+plt.ylabel("Error rate")
+plt.show()
+
+# From the above graph we can conclude the minimum error for a value of K. Thus we can finally build the KNN model with this K value as n_neighbors.
